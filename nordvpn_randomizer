@@ -1,0 +1,110 @@
+#!/bin/bash
+#
+#title			:nordvpn_randomizer
+#description	:randomizes NordVPN's UDP files based on
+#				:country (user input) and adds auth.txt
+#				:so login happens automatically.
+#author			:Damian Rath
+#date			:20180629
+#version		:0.5
+#usage			:bash nordvpn_randomizer
+#notes			:script expects /etc/openvpn/auth.txt to
+#				:exist containing valid user & password.
+#bash_version	:4.3.48(1)-release
+
+
+rServer=""
+vpnExist=""
+vpnIP=""
+VPNCOUNTRIES=("ar" "at" "au" "az" "ba" "be" "bg" "br" "ca" "ch" "cl" "cy" "cz" "de" "dk" "ee" "es" "fi" "fr" "ge" "hk" "hr" "hu" "id" "ie" "il" "in" "is" "it" "jp" "kr" "lu" "lv" "md" "mk" "mx" "my" "nl" "no" "nz" "pl" "pt" "ro" "rs" "ru" "se" "sg" "si" "sk" "tr" "tw" "uk" "us" "vn" "za")
+mySelect=""
+myItem=""
+item=""
+cwd=$(pwd)
+
+
+if [ "$(id -u)" != "0" ]; then
+    echo "This script must be run as root" 1>&2
+    exit 1
+fi
+
+# Check to see if a OpenVPN process already is started
+#vpnExist=$(ps auxf | grep openvpn | fgrep -v grep)
+#if [ "$vpnExist" ]; then
+#	echo
+#    echo "Openvpn process already exists. Exiting."
+#    exit 1
+#fi
+for pid in $(pidof -x openvpn); do
+    if [ $pid != $$ ]; then
+        echo "OpenVPN process is already running with PID $pid"
+        exit 1
+    fi
+done
+
+# Keep asking for a valid country-code until the user gets it right
+while ! [ "${myItem}" ]; do
+    clear
+
+    echo
+    echo "NordVPN random server picker"
+    echo "=================================================================="
+
+    # Ask user to provide a country-code for the random server choice
+    echo
+    echo "Please enter valid country-code you want to use for random server"
+    read -p ">" mySelect
+
+    # Check to see that the user input actually is a country-code
+    # that NordVPN has a VPN server at.
+    for item in "${VPNCOUNTRIES[@]}"; do
+        if [[ $mySelect == "$item" ]]; then
+            myItem="true"
+        fi
+    done
+    if [[ ! $myItem ]]; then
+        echo
+        echo "NordVPN does not support that country. Please try again."
+        echo
+        echo "Valid country-codes are: ${VPNCOUNTRIES[*]}"
+        echo
+        read -sn 1 -p "Press any key to continue..."
+    fi
+
+done
+
+# Ok, we now have a valid country-code. Time to start the OpenVPN server.
+cd /etc/openvpn/ovpn_udp
+
+# Pick a random file we need
+rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo)
+
+echo
+echo "Random server is: $rServer"
+echo
+echo "Standby..."
+
+# Find the string 'auth-user-pass' in the choosen file and add
+# '/etc/openvpn/auth.txt' at the end of it unless it already exists.
+grep -q "auth.txt" $rServer
+if [[ ! $? -eq 0 ]]; then
+    sed -i 's/auth-user-pass/& \/etc\/openvpn\/auth.txt/' $rServer
+fi
+
+# Forking the start of OpenVPN.
+/bin/bash -c "openvpn $rServer >/dev/null 2>&1 &"
+
+# Wait a few seconds to have the openvpn process above fully initialize.
+# Use a number (seconds) that works for your system.
+sleep 5
+
+# Ask Google what my new IP is after the VPN has been initialized.
+vpnIP=$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{ print $2}')
+
+echo
+echo "My new IP is: $vpnIP"
+echo
+
+cd $cwd
+
+exit 0
