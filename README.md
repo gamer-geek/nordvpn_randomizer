@@ -44,3 +44,9 @@ That's it!
 ## TODO
 
 - Add more error checking for the shellscript-challenged people.
+
+
+
+## Disclaimer
+
+I'm not affiliated with NordVPN in any way except being a normal customer that enjoys their services.
