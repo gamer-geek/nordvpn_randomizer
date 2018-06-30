@@ -8,7 +8,7 @@ It assumes you have followed the [instructions](https://nordvpn.com/tutorials/li
 $> sudo nano /etc/openvpn/auth.txt
 ```
 
-- Now add your OpenVPN **username** on the first row and your NordVPN **password** on the second row.
+- Now add your NordVPN **username** on the first row and your NordVPN **password** on the second row.
 
 - Save and exit nano by pressing X and confirm.
 
@@ -32,7 +32,7 @@ Now just put a symbolic link to *~/sources/nordvpn_randomizer/nordvpn_randomizer
 
 After you have run the script (as root) it will ask you for a country-code. If you don't know which country-codes that are available you can just press ENTER and a list will be provided for you.
 
-When you have choosen a country-code the script will proceed to randomly pick a OpenVPN server for you and connect to it. After a few seconds it will inform you what VPN IP address you now have and exit.
+When you have choosen a country-code the script will proceed to randomly pick a VPN server for you and connect to it. After a few seconds it will inform you what VPN IP address you now have and exit.
 
 You kill your OpenVPN process with:  `sudo killall openvpn`
 
