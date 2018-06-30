@@ -5,7 +5,7 @@
 #               :country (user input) and adds auth.txt
 #               :so login happens automatically.
 #author         :Damian Rath
-#2018-06-30     :20180629
+#created        :2018-06-30
 #version        :0.5
 #usage          :bash nordvpn_randomizer
 #notes          :script expects /etc/openvpn/auth.txt to
