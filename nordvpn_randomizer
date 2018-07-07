@@ -180,6 +180,7 @@ if [ $LOGFILE ]; then
     echo "[$(who am i | awk -F' ' '{print $1}')] [$(date)]: $rServer ($vpnIP)" >> $LOGFILE
 fi
 
+
 echo
 echo "My new IP is: $vpnIP"
 echo
