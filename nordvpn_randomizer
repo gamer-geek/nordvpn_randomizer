@@ -64,11 +64,6 @@ function killOpenvpn() {
     return
 }
 
-function log() {
-    echo "[${USER}][$(date)] - ${*}" >> ${LOGFILE}
-
-    return
-}
 
 # Parse all command line parameters, if any.
 while [[ $# -gt 0 ]]
@@ -149,10 +144,12 @@ cd /etc/openvpn/ovpn_udp
 # Pick a random file we need
 rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo)
 
-echo
-echo "Random server is: $rServer"
-echo
-echo "Standby..."
+if [ ! $cli ]; then
+    echo
+    echo "Random server is: $rServer"
+    echo
+    echo "Standby..."
+fi
 
 # Find the string 'auth-user-pass' in the choosen file and add
 # '/etc/openvpn/auth.txt' at the end of it unless it already exists.
@@ -177,13 +174,14 @@ if [ $LOGFILE ]; then
         chmod 0600 $LOGFILE
     fi
 
-    echo "[$(who am i | awk -F' ' '{print $1}')] [$(date)]: $rServer ($vpnIP)" >> $LOGFILE
+    echo "[$(who am i | awk -F' ' '{print $1}')][$(date)]: $rServer ($vpnIP)" >> $LOGFILE
 fi
 
-
-echo
-echo "My new IP is: $vpnIP"
-echo
+if [ ! $cli ]; then
+    echo
+    echo "My new IP is: $vpnIP"
+    echo
+fi
 
 cd $cwd
 
