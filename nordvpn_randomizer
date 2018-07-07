@@ -58,7 +58,7 @@ function killOpenvpn() {
 }
 
 
-if [ ! $ cli ]; then
+if [ ! $cli ]; then
     checkOpenvpn
 fi
 
