@@ -68,13 +68,6 @@ function log() {
     return
 }
 
-echo "$cli"; exit
-
-if [ ! $cli ]; then
-    checkOpenvpn
-fi
-
-
 # Parse all command line parameters, if any.
 while [[ $# -gt 0 ]]
 do
@@ -109,6 +102,11 @@ do
     # Shift after checking all the cases to get the next option
     shift
 done
+
+
+if [ ! $cli ]; then
+    checkOpenvpn
+fi
 
 if [ ! $cli ]; then
     # Keep asking for a valid country-code until the user gets it right
