@@ -63,9 +63,12 @@ function killOpenvpn() {
 }
 
 function log() {
-    echo "[${USER}][`date`] - ${*}" >> ${LOGFILE}
+    echo "[${USER}][$(date)] - ${*}" >> ${LOGFILE}
+
+    return
 }
 
+echo "$cli"; exit
 
 if [ ! $cli ]; then
     checkOpenvpn
