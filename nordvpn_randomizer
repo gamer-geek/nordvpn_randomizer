@@ -174,7 +174,7 @@ if [ $LOGFILE ]; then
         chmod 0600 $LOGFILE
     fi
 
-    echo "[$(who am i | awk -F' ' '{print $1}')][$(date)]: $rServer ($vpnIP)" >> $LOGFILE
+    echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] $rServer ($vpnIP)" >> $LOGFILE
 fi
 
 if [ ! $cli ]; then
