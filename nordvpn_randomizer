@@ -20,6 +20,7 @@ VPNCOUNTRIES=("ar" "at" "au" "az" "ba" "be" "bg" "br" "ca" "ch" "cl" "cy" "cz" "
 mySelect=""
 myItem=""
 item=""
+cli=""
 cwd=$(pwd)
 
 
@@ -28,45 +29,107 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
-for pid in $(pidof -x openvpn); do
-    if [ $pid != $$ ]; then
-        echo
-        echo "OpenVPN process is already running with PID $pid"
-        echo
-        exit 1
-    fi
-done
 
-# Keep asking for a valid country-code until the user gets it right
-while ! [ "${myItem}" ]; do
-    clear
-
-    echo
-    echo "NordVPN random server picker"
-    echo "=================================================================="
-
-    # Ask user to provide a country-code for the random server choice
-    echo
-    echo "Please enter valid country-code you want to use for random server"
-    read -p ">" mySelect
-
-    # Check to see that the user input actually is a country-code
-    # that NordVPN has a VPN server at.
-    for item in "${VPNCOUNTRIES[@]}"; do
-        if [[ $mySelect == "$item" ]]; then
-            myItem="true"
+function checkOpenvpn() {
+    for pid in $(pidof -x openvpn)
+    do
+        if [ $pid != $$ ]; then
+            echo
+            echo "OpenVPN process is already running with PID $pid"
+            echo
+            exit 1
         fi
     done
-    if [[ ! $myItem ]]; then
+
+    return
+}
+
+function killOpenvpn() {
+    killall openvpn
+    sleep 5
+
+    if [ ! $cli ]; then
         echo
-        echo "NordVPN does not support that country. Please try again."
+        echo "All OpenVPN processes killed."
         echo
-        echo "Valid country-codes are: ${VPNCOUNTRIES[*]}"
-        echo
-        read -sn 1 -p "Press any key to continue..."
     fi
 
+    return
+}
+
+
+if [ ! $ cli ]; then
+    checkOpenvpn
+fi
+
+
+# Parse all command line parameters, if any.
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    case "$key" in
+        -a|--add)
+            shift
+            mySelect="$1"
+            cli="true"
+        ;;
+        -k|--kill)
+            cli="true"
+            killOpenvpn
+        ;;
+        -h|--help)
+            cli="true"
+            echo
+            echo "No parameters             = menu mode"
+            echo
+            echo "-a|--add <country-code>   = add a randomized VPN"
+            echo
+            echo "-k|--kill                 = kill all OpenVPN processes"
+            echo
+            echo "-h|--help                 = this help"
+            echo
+        ;;        
+        *)
+            echo "Unknown option '$key'"
+            exit 1
+        ;;
+    esac
+    # Shift after checking all the cases to get the next option
+    shift
 done
+
+if [ ! $cli ]; then
+    # Keep asking for a valid country-code until the user gets it right
+    while ! [ "${myItem}" ]; do
+        clear
+
+        echo
+        echo "NordVPN random server picker"
+        echo "=================================================================="
+
+        # Ask user to provide a country-code for the random server choice
+        echo
+        echo "Please enter valid country-code you want to use for random server"
+        read -p ">" mySelect
+
+        # Check to see that the user input actually is a country-code
+        # that NordVPN has a VPN server at.
+        for item in "${VPNCOUNTRIES[@]}"; do
+            if [[ $mySelect == "$item" ]]; then
+                myItem="true"
+            fi
+        done
+        if [[ ! $myItem ]]; then
+            echo
+            echo "NordVPN does not support that country. Please try again."
+            echo
+            echo "Valid country-codes are: ${VPNCOUNTRIES[*]}"
+            echo
+            read -sn 1 -p "Press any key to continue..."
+        fi
+    done
+fi
+
 
 # Ok, we now have a valid country-code. Time to start the OpenVPN server.
 cd /etc/openvpn/ovpn_udp
