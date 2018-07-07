@@ -13,10 +13,15 @@
 #bash_version   :4.3.48(1)-release
 
 
+# This will let the script know where it's located even
+# if run in cron or symlinked.
+scriptDir=$(dirname $(readlink -f $0))
+
 rServer=""
 vpnExist=""
 vpnIP=""
 VPNCOUNTRIES=("ar" "at" "au" "az" "ba" "be" "bg" "br" "ca" "ch" "cl" "cy" "cz" "de" "dk" "ee" "es" "fi" "fr" "ge" "hk" "hr" "hu" "id" "ie" "il" "in" "is" "it" "jp" "kr" "lu" "lv" "md" "mk" "mx" "my" "nl" "no" "nz" "pl" "pt" "ro" "rs" "ru" "se" "sg" "si" "sk" "tr" "tw" "uk" "us" "vn" "za")
+LOGFILE="$scriptDir/nordvpn_randomizer.log"
 mySelect=""
 myItem=""
 item=""
@@ -55,6 +60,10 @@ function killOpenvpn() {
     fi
 
     return
+}
+
+function log() {
+    echo "[${USER}][`date`] - ${*}" >> ${LOGFILE}
 }
 
 
@@ -135,7 +144,7 @@ fi
 cd /etc/openvpn/ovpn_udp
 
 # Pick a random file we need
-rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo)
+rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo) | log
 
 echo
 echo "Random server is: $rServer"
