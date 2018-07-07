@@ -21,12 +21,14 @@ rServer=""
 vpnExist=""
 vpnIP=""
 VPNCOUNTRIES=("ar" "at" "au" "az" "ba" "be" "bg" "br" "ca" "ch" "cl" "cy" "cz" "de" "dk" "ee" "es" "fi" "fr" "ge" "hk" "hr" "hu" "id" "ie" "il" "in" "is" "it" "jp" "kr" "lu" "lv" "md" "mk" "mx" "my" "nl" "no" "nz" "pl" "pt" "ro" "rs" "ru" "se" "sg" "si" "sk" "tr" "tw" "uk" "us" "vn" "za")
-LOGFILE="$scriptDir/nordvpn_randomizer.log"
 mySelect=""
 myItem=""
 item=""
 cli=""
 cwd=$(pwd)
+
+# Unset this string to disable logging
+LOGFILE="$scriptDir/nordvpn_randomizer.log"
 
 
 if [ "$(id -u)" != "0" ]; then
@@ -168,6 +170,14 @@ sleep 5
 
 # Ask Google what my new IP is after the VPN has been initialized.
 vpnIP=$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{ print $2}')
+
+if [ $LOGFILE ]; then
+    if [ ! -f $LOGFILE ]; then
+        touch $LOGFILE
+    fi
+
+    echo "[${USER}][$(date)]- $rServer ($vpnIP)" >> $LOGFILE"
+fi
 
 echo
 echo "My new IP is: $vpnIP"
