@@ -176,7 +176,7 @@ if [ $LOGFILE ]; then
         touch $LOGFILE
     fi
 
-    echo "[${USER}][$(date)]- $rServer ($vpnIP)" >> $LOGFILE
+    echo "[$(who am i)$(date)]- $rServer ($vpnIP)" >> $LOGFILE
 fi
 
 echo
