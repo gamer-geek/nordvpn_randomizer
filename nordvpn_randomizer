@@ -169,14 +169,15 @@ fi
 sleep 5
 
 # Ask Google what my new IP is after the VPN has been initialized.
-vpnIP=$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{ print $2}')
+vpnIP=$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{print $2}')
 
 if [ $LOGFILE ]; then
     if [ ! -f $LOGFILE ]; then
         touch $LOGFILE
+        chmod 0600 $LOGFILE
     fi
 
-    echo "[$(who am i)$(date)]- $rServer ($vpnIP)" >> $LOGFILE
+    echo "[$(who am i | awk -F' ' '{print $1}')$(date)]- $rServer ($vpnIP)" >> $LOGFILE
 fi
 
 echo
