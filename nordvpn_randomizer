@@ -145,7 +145,7 @@ fi
 cd /etc/openvpn/ovpn_udp
 
 # Pick a random file we need
-rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo) | log
+rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo) | tee $LOGFILE
 
 echo
 echo "Random server is: $rServer"
@@ -167,7 +167,7 @@ fi
 sleep 5
 
 # Ask Google what my new IP is after the VPN has been initialized.
-vpnIP=$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{ print $2}')
+vpnIP=$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{ print $2}') | tee $LOGFILE
 
 echo
 echo "My new IP is: $vpnIP"
