@@ -6,7 +6,7 @@
 #               :so login happens automatically.
 #author         :Damian Rath
 #created        :2018-06-30
-#version        :0.5
+#version        :0.6
 #usage          :bash nordvpn_randomizer
 #notes          :script expects /etc/openvpn/auth.txt to
 #               :exist containing valid user & password.
