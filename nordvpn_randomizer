@@ -133,7 +133,7 @@ do
             serverLoad
         ;;
         -l|--log)
-            viewLog
+            logview="true"
         ;;
         -h|--help)
             echo
@@ -187,13 +187,15 @@ sleep 5
 # Ask Google what my new IP is after the VPN has been initialized.
 vpnIP=$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{print $2}')
 
-if [ $LOGFILE ]; then
-    if [ ! -f $LOGFILE ]; then
-        touch $LOGFILE
-        chmod 0600 $LOGFILE
-    fi
+if [ ! -f $LOGFILE ]; then
+    touch $LOGFILE
+    chmod 0600 $LOGFILE
+fi
 
-    echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] $rServer ($vpnIP)" >> $LOGFILE
+echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] $rServer ($vpnIP)" >> $LOGFILE
+
+if [ $logview ]; then
+    viewLog
 fi
 
 cd $cwd
