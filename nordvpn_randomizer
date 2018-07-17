@@ -76,10 +76,10 @@ function udpPinger() {
         QPROTO="443"
     fi
 
-    if [ $verbose ]; then
+    if [ ! $verbose ]; then
         echo "Protocol: $QPROTO"
     fi
-    if [ ! "$verbose" ] ; then
+    if [ "$verbose" ] ; then
         echo "ovpn file                                          protocol           average  timeout"
     fi
 
