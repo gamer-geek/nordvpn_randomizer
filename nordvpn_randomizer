@@ -173,6 +173,9 @@ do
         ;;
         -l|--log)
             logview="true"
+            echo
+            echo "Working..."
+            echo
         ;;
         -f|--fastest)
             srvLoad="true"
