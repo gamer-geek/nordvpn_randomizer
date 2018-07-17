@@ -74,6 +74,8 @@ function killOpenvpn() {
 function serverLoad() {
     local pingOut=""
     local size=0
+    local capacity=""
+    local location=""
 
     if [ ! $cli ]; then
         echo
@@ -117,7 +119,10 @@ function serverLoad() {
     myIndex=$(($RANDOM % $size))
 #    echo ${fastServers[$myIndex]}
     rServer="${fastServers[$myIndex]}.udp.ovpn"
-#    echo "$rServer"
+    echo "$rServer"
+
+    exit
+#    return
 }
 
 
