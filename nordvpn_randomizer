@@ -140,7 +140,7 @@ function serverLoad() {
         echo
         echo "Randomly selected server"
         echo
-        echo "${fastServers[$myIndex]}"
+        echo "$rserver"
         echo
     fi
 
