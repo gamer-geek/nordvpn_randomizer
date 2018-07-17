@@ -135,7 +135,7 @@ do
             cli="true"
             killOpenvpn
         ;;
-        -a|--fastest)
+        -f|--fastest)
             cli="true"
             serverLoad
         ;;
