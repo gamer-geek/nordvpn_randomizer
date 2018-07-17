@@ -92,7 +92,7 @@ function serverLoad() {
 
     if [ $debug ]; then
         echo
-        echo "Filtered: server load + server latency"
+        echo "Filtered: server capacity"
         echo
         for key in "${!results[@]}"
         do
@@ -117,7 +117,7 @@ function serverLoad() {
 
     if [ $debug ]; then
         echo
-        echo "Filtered: server load + server latency"
+        echo "Filtered: server capacity + server latency"
         echo
         for key in "${!fastServers[@]}"
         do
