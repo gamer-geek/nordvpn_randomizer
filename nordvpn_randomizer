@@ -134,7 +134,7 @@ function serverLoad() {
     ((i++))
     done
 
-#    echo "$rServer"
+    echo "$temprServer"
 
     exit
 
