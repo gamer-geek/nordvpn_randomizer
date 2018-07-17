@@ -62,6 +62,15 @@ function killOpenvpn() {
     return
 }
 
+function viewLog() {
+    echo
+    tail -10 $scriptDir/nordvpn_randomizer.log
+    echo
+
+    return
+}
+
+
 function serverLoad() {
     local pingOut=""
     local size=0
@@ -102,7 +111,7 @@ function serverLoad() {
     myIndex=$(($RANDOM % $size))
 #    echo ${fastServers[$myIndex]}
     rServer="${fastServers[$myIndex]}.udp.ovpn"
-    echo "$rServer"
+#    echo "$rServer"
 
     return
 }
@@ -123,6 +132,9 @@ do
         -f|--fastest)
             serverLoad
         ;;
+        -l|--log)
+            viewLog
+        ;;
         -h|--help)
             echo
             echo "No parameters             = menu mode"
@@ -132,6 +144,8 @@ do
             echo "-k|--kill                 = kill all OpenVPN processes"
             echo
             echo "-f|--fastest              = find the fastest"
+            echo
+            echo "-l|--log              = show the log after connection"
             echo
             echo "-h|--help                 = this help"
             echo
@@ -154,7 +168,6 @@ cd /etc/openvpn/ovpn_udp
 if [ ! $rServer ]; then
     # --fastest is not set so we pick a file the oldfashioned way.
     rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo)
-    echo "Picking a file"
 fi
 
 # Find the string 'auth-user-pass' in the choosen file and add
