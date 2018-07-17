@@ -95,7 +95,7 @@ function serverLoad() {
         echo
         for key in "${!results[@]}"
         do
-            echo -e "$(tput setaf 6 && tput bold)$key $(tput sgr0) ${results[$key]}%"
+            echo "$key ${results[$key]}%"
         done | awk '{print $NF,$0}' | sort -nr | cut -f2- -d' ' | column -t
 
 #        for i in "${!results[@]}"
