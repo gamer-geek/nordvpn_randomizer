@@ -6,7 +6,7 @@
 #               :so login happens automatically.
 #author         :Damian Rath
 #created        :2018-06-30
-#version        :0.7
+#version        :0.8
 #usage          :bash nordvpn_randomizer
 #notes          :script expects /etc/openvpn/auth.txt to
 #               :exist containing valid user & password.
@@ -26,7 +26,7 @@ VPNCOUNTRIES=("ar" "at" "au" "az" "ba" "be" "bg" "br" "ca" "ch" "cl" "cy" "cz" "
 mySelect=""
 cwd=$(pwd)
 CAPACITY=70         # Servers with 70% capacity left
-THRESHOLD=30        # Latency threshold 30ms
+THRESHOLD=30        # Latency threshold: Below 30ms
 myIndex=0
 
 
@@ -41,19 +41,13 @@ fi
 
 type jq >/dev/null 2>&1 || { 2>&1 echo "Missing dependency: This script requires jq 1.5"; exit 1; }
 
-#function checkOpenvpn() {
-#    for pid in $(pidof -x openvpn)
-#    do
-#        if [ $pid != $$ ]; then
-#            echo
-#            echo "OpenVPN process is already running with PID $pid"
-#            echo
-#            exit 1
-#        fi
-#    done
-#
-#    return
-#}
+function checkOpenvpn() {
+    openvpnRunning=$(ps auxf | grep -i "openvpn" | fgrep -v grep)
+    echo
+    echo "($openvpnRunning)"
+
+    return
+}
 
 function killOpenvpn() {
     killall openvpn
@@ -98,9 +92,7 @@ function serverLoad() {
     do
         pingOut=$(ping -w 2 -c 1 -q $key | tail -n2 | awk -F '/' 'END {print $5}')
 
-        if grep "100% packet loss" <(echo $pingOut) > /dev/null ; then
-            echo "Error"
-        elif [[ "$pingOut" < "$THRESHOLD" ]]; then
+        if [[ "$pingOut" < "$THRESHOLD" ]]; then
             fastServers[$myIndex]=$key
 #            echo "$pingOut / $key"
         fi
@@ -109,15 +101,21 @@ function serverLoad() {
 
     size=${#fastServers[@]}
     myIndex=$(($RANDOM % $size))
-#    echo ${fastServers[$myIndex]}
-    rServer="${fastServers[$myIndex]}.udp.ovpn"
+
+    if [ ! ${fastServers[$myIndex]} ]; then
+        echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] No server matching your critera could be found" >> $LOGFILE
+        exit 1
+    else
+        rServer="${fastServers[$myIndex]}.udp.ovpn"
+    fi
+
 #    echo "$rServer"
 
     return
 }
 
 
-# Parse all command line parameters, if any.
+# Parse all command line parameters
 while [[ $# -gt 0 ]]
 do
     key="$1"
@@ -196,6 +194,7 @@ echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] $rServer ($vpnIP)" >> $LOG
 
 if [ $logview ]; then
     viewLog
+    checkOpenvpn
 fi
 
 cd $cwd
