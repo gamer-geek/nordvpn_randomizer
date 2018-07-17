@@ -43,8 +43,8 @@ type jq >/dev/null 2>&1 || { 2>&1 echo "Missing dependency: This script requires
 
 function checkOpenvpn() {
     openvpnRunning=$(ps auxf | grep -i "openvpn" | fgrep -v grep)
-    echo
     echo "($openvpnRunning)"
+    echo
 
     return
 }
