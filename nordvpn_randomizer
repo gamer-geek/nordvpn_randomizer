@@ -133,7 +133,7 @@ function serverLoad() {
         if [ "$i" = "$myIndex" ]; then
             temprServer="$key"
         fi
-    ((i++))
+        ((i++))
     done
 
     rServer="$temprServer.udp.ovpn"
