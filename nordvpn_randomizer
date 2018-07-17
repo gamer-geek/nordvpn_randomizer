@@ -101,13 +101,16 @@ function serverLoad() {
         echo
     fi
 
+    i=0
+
     for key in "${!results[@]}"
     do
         pingOut=$(ping -w 2 -c 1 -q $key | tail -n2 | awk -F '/' 'END {print $5}')
 
         if [[ "$pingOut" < "$THRESHOLD" ]]; then
-            fastServers[$key]=$pingOut
+            fastServers[$i,$key]=$pingOut
         fi
+    ((i++))
     done
 
     if [ $debug ]; then
