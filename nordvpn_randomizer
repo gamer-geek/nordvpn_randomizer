@@ -101,7 +101,7 @@ function serverLoad() {
         echo
     fi
 
-    i=0
+    i=1
     for key in "${!results[@]}"
     do
         pingOut=$(ping -w 2 -c 1 -q $key | tail -n2 | awk -F '/' 'END {print $5}')
@@ -128,7 +128,7 @@ function serverLoad() {
 
     echo "$size // $myIndex"
 
-    i=0
+    i=1
     for key in "${!fastServers[@]}"
     do
         if [ "$i" = "$myIndex" ]; then
