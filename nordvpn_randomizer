@@ -22,6 +22,8 @@ declare -A fastServers
 myIndex=0
 debug=""
 rServer=""
+killOVPN=""
+srvLoad=""
 vpnExist=""
 vpnIP=""
 VPNCOUNTRIES=("ar" "at" "au" "az" "ba" "be" "bg" "br" "ca" "ch" "cl" "cy" "cz" "de" "dk" "ee" "es" "fi" "fr" "ge" "hk" "hr" "hu" "id" "ie" "il" "in" "is" "it" "jp" "kr" "lu" "lv" "md" "mk" "mx" "my" "nl" "no" "nz" "pl" "pt" "ro" "rs" "ru" "se" "sg" "si" "sk" "tr" "tw" "uk" "us" "vn" "za")
@@ -72,6 +74,7 @@ function serverLoad() {
     local size=0
     local capacity=0
     local location=""
+    local temprServer=""
 
     nordServers=$(curl --silent https://nordvpn.com/api/server/stats)
 
@@ -166,13 +169,13 @@ do
             debug="true"
         ;;
         -k|--kill)
-            killOpenvpn
+            killOVPN="true"
         ;;
         -l|--log)
             logview="true"
         ;;
         -f|--fastest)
-            serverLoad
+            srvLoad="true"
         ;;
         -h|--help)
             echo
@@ -208,6 +211,14 @@ if [ $debug ];then
 fi
 
 cd /etc/openvpn/ovpn_udp
+
+if [ $killOVPN ]; then
+    killOpenvpn
+fi
+
+if [ $srvLoad ]; then
+    serverLoad
+fi
 
 if [ ! $rServer ]; then
     # --fastest is not set so we pick a file the oldfashioned way.
