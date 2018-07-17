@@ -104,12 +104,15 @@ function serverLoad() {
 
     if [ ! ${fastServers[$myIndex]} ]; then
         echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] No server matching your critera could be found" >> $LOGFILE
+        if [ $logview ]; then
+            viewLog
+        fi
         exit 1
     else
         rServer="${fastServers[$myIndex]}.udp.ovpn"
     fi
 
-#    echo "$rServer"
+    echo "$rServer"
 
     return
 }
