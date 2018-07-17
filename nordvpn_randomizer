@@ -101,16 +101,13 @@ function serverLoad() {
         echo
     fi
 
-    i=0
-
     for key in "${!results[@]}"
     do
         pingOut=$(ping -w 2 -c 1 -q $key | tail -n2 | awk -F '/' 'END {print $5}')
 
         if [[ "$pingOut" < "$THRESHOLD" ]]; then
-            fastServers[$i,$key]=$pingOut
+            fastServers[$key]=$pingOut
         fi
-    ((i++))
     done
 
     if [ $debug ]; then
@@ -128,6 +125,17 @@ function serverLoad() {
     myIndex=$(($RANDOM % $size))
 
     echo "$size // $myIndex"
+
+    i=0
+    for key in "${!fastServers[@]}"
+    do
+        if [ "$i" = "$myIndex" ]; then
+            rServer="$key"
+        fi
+    done
+
+    echo "$rServer"
+
     exit
 
 
