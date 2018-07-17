@@ -90,6 +90,7 @@ do
             echo
             echo "-h|--help                 = this help"
             echo
+            exit 0
         ;;        
         *)
             echo "Unknown option '$key'"
