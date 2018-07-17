@@ -139,7 +139,7 @@ function serverLoad() {
     exit
 
 
-    if [ ! $rServer ]; then
+    if [ ! $temprServer ]; then
         echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] No server matching your critera could be found" >> $LOGFILE
         if [ $logview ]; then
             viewLog
