@@ -54,8 +54,8 @@ function checkOpenvpn() {
 }
 
 function killOpenvpn() {
-    killall openvpn
-    sleep 5
+    killall openvpn >/dev/null 2>&1
+    sleep 2
 
     return
 }
