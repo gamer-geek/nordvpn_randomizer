@@ -97,12 +97,6 @@ function serverLoad() {
         do
             echo "$key ${results[$key]}%"
         done | awk '{print $NF,$0}' | sort -nr | cut -f2- -d' ' | column -t
-
-#        for i in "${!results[@]}"
-#        do
-#            echo "key  : $i"
-#            echo "value: ${results[$i]}"
-#        done
         echo
         exit 0
     fi
@@ -113,7 +107,6 @@ function serverLoad() {
 
         if [[ "$pingOut" < "$THRESHOLD" ]]; then
             fastServers[$myIndex]=$key
-#            echo "$pingOut / $key"
         fi
         ((myIndex++))
     done
@@ -122,7 +115,7 @@ function serverLoad() {
         echo
         for i in "$fastServers{[@]}"
         do
-            echo "$key"
+            echo "$i"
         done
         echo
         exit 0
