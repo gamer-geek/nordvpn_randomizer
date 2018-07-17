@@ -18,7 +18,7 @@
 scriptDir=$(dirname $(readlink -f $0))
 
 declare -A results
-declare -a fastServers
+declare -A fastServers
 myIndex=0
 showLowLoad=""
 showLowLatency=""
@@ -106,17 +106,21 @@ function serverLoad() {
         pingOut=$(ping -w 2 -c 1 -q $key | tail -n2 | awk -F '/' 'END {print $5}')
 
         if [[ "$pingOut" < "$THRESHOLD" ]]; then
-            fastServers[$myIndex]=$key
+            fastServers[$key]=$pingOut
         fi
-        ((myIndex++))
+
+#        if [[ "$pingOut" < "$THRESHOLD" ]]; then
+#            fastServers[$myIndex]=$key
+#        fi
+#        ((myIndex++))
     done
 
     if [ $showLowLatency ]; then
         echo
-        for i in "${fastServers[@]}"
+        for key in "${!fastServers[@]}"
         do
-            echo "$i"
-        done
+            echo "$key ${fastServers[$key]}%"
+        done | awk '{print $NF,$0}' | sort -nr | cut -f2- -d' ' | column -t
         echo
         exit 0
     fi
