@@ -1,10 +1,10 @@
-# nordvpn_randomizer  (non-Network-Manager workstation /server edition)
+# nordvpn_randomizer
 
 This Bash script was created for simply randomize the available [NordVPN](https://nordvpn.com/) OpenVPN UDP files for a specific country choosen by the user. This script is also provided AS-IS and is a work in progress when I have some time over.
 
 It assumes you have followed the [instructions](https://nordvpn.com/tutorials/linux/openvpn/) for the shell installation method. In short, this installation method below assumes that you have a **working** OpenVPN installation. What that NordVPN page doesn't add is that you can create a file named *auth.txt*  in */etc/openvpn/* (as root) and use it for bit of automation regarding connecting to the VPNs provided by NordVPN.
 
-This particular script is for users without Network-Manager and/or server owners. The version for Network-Manager can be found [here](https://github.com/damianrath/nordvpn_randomizer-nm).
+This particular script is for users *without* Network-Manager and/or server owners. The version for Network-Manager can be found [here](https://github.com/damianrath/nordvpn_randomizer-nm).
 
 ```
 
