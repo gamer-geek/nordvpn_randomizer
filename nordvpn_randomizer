@@ -120,7 +120,7 @@ function serverLoad() {
         for key in "${!fastServers[@]}"
         do
             echo "$key ${fastServers[$key]}ms"
-        done | awk '{print $NF,$0}' | sort -nr | cut -f2- -d' ' | column -t
+        done | awk '{print $NF,$0}' | sort -n | cut -f2- -d' ' | column -t
         echo
         exit 0
     fi
