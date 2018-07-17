@@ -24,9 +24,6 @@ vpnExist=""
 vpnIP=""
 VPNCOUNTRIES=("ar" "at" "au" "az" "ba" "be" "bg" "br" "ca" "ch" "cl" "cy" "cz" "de" "dk" "ee" "es" "fi" "fr" "ge" "hk" "hr" "hu" "id" "ie" "il" "in" "is" "it" "jp" "kr" "lu" "lv" "md" "mk" "mx" "my" "nl" "no" "nz" "pl" "pt" "ro" "rs" "ru" "se" "sg" "si" "sk" "tr" "tw" "uk" "us" "vn" "za")
 mySelect=""
-myItem=""
-item=""
-cli=""
 cwd=$(pwd)
 CAPACITY=70         # Servers with 70% capacity left
 THRESHOLD=30        # Latency threshold 30ms
@@ -44,29 +41,23 @@ fi
 
 type jq >/dev/null 2>&1 || { 2>&1 echo "Missing dependency: This script requires jq 1.5"; exit 1; }
 
-function checkOpenvpn() {
-    for pid in $(pidof -x openvpn)
-    do
-        if [ $pid != $$ ]; then
-            echo
-            echo "OpenVPN process is already running with PID $pid"
-            echo
-            exit 1
-        fi
-    done
-
-    return
-}
+#function checkOpenvpn() {
+#    for pid in $(pidof -x openvpn)
+#    do
+#        if [ $pid != $$ ]; then
+#            echo
+#            echo "OpenVPN process is already running with PID $pid"
+#            echo
+#            exit 1
+#        fi
+#    done
+#
+#    return
+#}
 
 function killOpenvpn() {
     killall openvpn
     sleep 5
-
-    if [ ! $cli ]; then
-        echo
-        echo "All OpenVPN processes killed."
-        echo
-    fi
 
     return
 }
@@ -76,14 +67,6 @@ function serverLoad() {
     local size=0
     local capacity=""
     local location=""
-
-    if [ ! $cli ]; then
-        echo
-        echo "Picking fastest random server"
-        echo
-        echo "Standby..."
-        echo
-    fi
 
     nordServers=$(curl --silent https://nordvpn.com/api/server/stats)
 
@@ -119,10 +102,9 @@ function serverLoad() {
     myIndex=$(($RANDOM % $size))
 #    echo ${fastServers[$myIndex]}
     rServer="${fastServers[$myIndex]}.udp.ovpn"
-    echo "$rServer"
+#    echo "$rServer"
 
-    exit
-#    return
+    return
 }
 
 
@@ -133,19 +115,15 @@ do
     case "$key" in
         -a|--add)
             shift
-            cli="true"
             mySelect="$1"
         ;;
         -k|--kill)
-            cli="true"
             killOpenvpn
         ;;
         -f|--fastest)
-            cli="true"
             serverLoad
         ;;
         -h|--help)
-            cli="true"
             echo
             echo "No parameters             = menu mode"
             echo
@@ -171,58 +149,12 @@ do
 done
 
 
-if [ ! $cli ]; then
-    checkOpenvpn
-fi
-
-if [ ! $cli ]; then
-    # Keep asking for a valid country-code until the user gets it right
-    while ! [ "${myItem}" ]; do
-        clear
-
-        echo
-        echo "NordVPN random server picker"
-        echo "=================================================================="
-
-        # Ask user to provide a country-code for the random server choice
-        echo
-        echo "Please enter valid country-code you want to use for random server"
-        read -p ">" mySelect
-
-        # Check to see that the user input actually is a country-code
-        # that NordVPN has a VPN server at.
-        for item in "${VPNCOUNTRIES[@]}"; do
-            if [[ $mySelect == "$item" ]]; then
-                myItem="true"
-            fi
-        done
-        if [[ ! $myItem ]]; then
-            echo
-            echo "NordVPN does not support that country. Please try again."
-            echo
-            echo "Valid country-codes are: ${VPNCOUNTRIES[*]}"
-            echo
-            read -sn 1 -p "Press any key to continue..."
-        fi
-    done
-fi
-
-
-# Ok, we now have a valid country-code. Time to start the OpenVPN server.
 cd /etc/openvpn/ovpn_udp
 
-
 if [ ! $rServer ]; then
-    # Pick a random file we need
+    # --fastest is not set so we pick a file the oldfashioned way.
     rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo)
     echo "Picking a file"
-fi
-
-if [ ! $cli ]; then
-    echo
-    echo "Random server is: $rServer"
-    echo
-    echo "Standby..."
 fi
 
 # Find the string 'auth-user-pass' in the choosen file and add
@@ -249,12 +181,6 @@ if [ $LOGFILE ]; then
     fi
 
     echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] $rServer ($vpnIP)" >> $LOGFILE
-fi
-
-if [ ! $cli ]; then
-    echo
-    echo "My new IP is: $vpnIP"
-    echo
 fi
 
 cd $cwd
