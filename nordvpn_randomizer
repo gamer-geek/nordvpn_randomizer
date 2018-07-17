@@ -88,10 +88,10 @@ function udpPinger() {
     do
         [ ! -e $F ] && echo -e 'Please give a valid path to where you downloaded ovpn files.\n(Try "-w" to automatically download them first or "-h" for help.)' && exit 1
         LIN=`grep "remote " $F`
-        PROTO=`echo $LIN | cut -d' ' -f3`
-        if [ "$PROTO" != "$QPROTO" ]; then
-            continue
-        fi
+#        PROTO=`echo $LIN | cut -d' ' -f3`
+#        if [ "$PROTO" != "$QPROTO" ]; then
+#            continue
+#        fi
         IP=`echo $LIN | cut -d' ' -f2`
         DL=`ping -c3 -q $IP | tail -n2`
 
