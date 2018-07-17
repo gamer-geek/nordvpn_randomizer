@@ -130,11 +130,11 @@ do
         -k|--kill)
             killOpenvpn
         ;;
-        -f|--fastest)
-            serverLoad
-        ;;
         -l|--log)
             logview="true"
+        ;;
+        -f|--fastest)
+            serverLoad
         ;;
         -h|--help)
             echo
