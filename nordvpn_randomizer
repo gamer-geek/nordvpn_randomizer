@@ -101,15 +101,13 @@ function serverLoad() {
         echo
     fi
 
-    i=1
     for key in "${!results[@]}"
     do
         pingOut=$(ping -w 2 -c 1 -q $key | tail -n2 | awk -F '/' 'END {print $5}')
 
         if [[ "$pingOut" < "$THRESHOLD" ]]; then
-            fastServers[$i, $key]=$pingOut
+            fastServers[$key]=$pingOut
         fi
-    ((i++))
     done
 
     if [ $debug ]; then
@@ -126,8 +124,6 @@ function serverLoad() {
     size=${#fastServers[@]}
     myIndex=$(($RANDOM % $size))
 
-    echo "$size // $myIndex"
-
     i=1
     for key in "${!fastServers[@]}"
     do
@@ -137,19 +133,19 @@ function serverLoad() {
     ((i++))
     done
 
-    echo "$rServer"
+#    echo "$rServer"
 
     exit
 
 
-    if [ ! ${fastServers[$myIndex]} ]; then
+    if [ ! $rServer ]; then
         echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] No server matching your critera could be found" >> $LOGFILE
         if [ $logview ]; then
             viewLog
         fi
         exit 1
     else
-        rServer="${fastServers[$myIndex]}.udp.ovpn"
+        rServer="$rServer.udp.ovpn"
     fi
 
 #    echo "$rServer"
