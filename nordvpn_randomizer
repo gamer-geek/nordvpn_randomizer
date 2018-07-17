@@ -129,24 +129,21 @@ function serverLoad() {
     for key in "${!fastServers[@]}"
     do
         if [ "$i" = "$myIndex" ]; then
-            temprServer="$key"
+            rServer="$key"
         fi
     ((i++))
     done
 
-    echo "$temprServer"
+    rServer="$rServer.udp.ovpn"
 
-    exit
+    echo "$rServer"
 
-
-    if [ ! "$temprServer" ]; then
+    if [ ! $rServer ]; then
         echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] No server matching your critera could be found" >> $LOGFILE
         if [ $logview ]; then
             viewLog
         fi
         exit 1
-    else
-        rServer="$temprServer.udp.ovpn"
     fi
 
 #    echo "$rServer"
