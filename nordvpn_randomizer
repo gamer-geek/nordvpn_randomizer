@@ -72,7 +72,6 @@ function serverLoad() {
     local size=0
     local capacity=0
     local location=""
-    local temprServer=""
 
     nordServers=$(curl --silent https://nordvpn.com/api/server/stats)
 
@@ -129,14 +128,12 @@ function serverLoad() {
     for key in "${!fastServers[@]}"
     do
         if [ "$i" = "$myIndex" ]; then
-            rServer="$key"
+            temprServer="$key"
         fi
     ((i++))
     done
 
-    rServer="$rServer.udp.ovpn"
-
-    echo "$rServer"
+    rServer="$temprServer.udp.ovpn"
 
     if [ ! $rServer ]; then
         echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] No server matching your critera could be found" >> $LOGFILE
@@ -146,13 +143,9 @@ function serverLoad() {
         exit 1
     fi
 
-#    echo "$rServer"
-
     if [ $debug ]; then
         echo
-        echo "Randomly selected server"
-        echo
-        echo "$rServer"
+        echo "Randomly selected server: $rServer"
         echo
     fi
 
