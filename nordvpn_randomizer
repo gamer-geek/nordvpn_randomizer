@@ -113,7 +113,7 @@ function serverLoad() {
 
     if [ $showLowLatency ]; then
         echo
-        for i in "$fastServers{[@]}"
+        for i in "${fastServers[@]}"
         do
             echo "$i"
         done
