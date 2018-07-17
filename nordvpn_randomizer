@@ -132,6 +132,7 @@ function serverLoad() {
         if [ "$i" = "$myIndex" ]; then
             rServer="$key"
         fi
+    ((i++))
     done
 
     echo "$rServer"
