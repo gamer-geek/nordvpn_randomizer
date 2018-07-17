@@ -6,7 +6,7 @@
 #               :so login happens automatically.
 #author         :Damian Rath
 #created        :2018-06-30
-#version        :0.6
+#version        :0.7
 #usage          :bash nordvpn_randomizer
 #notes          :script expects /etc/openvpn/auth.txt to
 #               :exist containing valid user & password.
@@ -62,6 +62,77 @@ function killOpenvpn() {
     fi
 
     return
+}
+
+function udpPinger() {
+    local DIR="/etc/openvpn/ovpn_udp"
+    local PREFIX="nl"
+    local PROTO="UDP"
+
+    if [ "$QNPROTO" == "UDP" ]; then
+        QPROTO="1194"
+    else
+        QPROTO="443"
+    fi
+
+    if [ "$verbose" -gt "0" ]; then
+        echo "Protocol: $QPROTO"
+    fi
+    if [ "$verbose" -gt "1" ] ; then
+        echo "ovpn file                                          protocol           average  timeout"
+    fi
+
+
+    for F in "$DIR"/"$PREFIX"*.ovpn
+    do
+        [ ! -e $F ] && echo -e 'Please give a valid path to where you downloaded ovpn files.\n(Try "-w" to automatically download them first or "-h" for help.)' && exit 1
+        LIN=`grep "remote " $F`
+        PROTO=`echo $LIN | cut -d' ' -f3`
+        if [ "$PROTO" != "$QPROTO" ]; then
+            continue
+        fi
+        IP=`echo $LIN | cut -d' ' -f2`
+        DL=`ping -c3 -q $IP | tail -n2`
+
+        if grep "100% packet loss" <(echo $DL) > /dev/null ; then
+            TI="3000.33"
+        else
+            TI=`echo $DL | cut -d'/' -f5`
+        fi
+
+        if [ "$verbose" -gt "0" ]; then
+            # formatted output
+            PFI=`printf '%-50s' "$F"`
+            PIP=`printf '%-18s' "$IP"`
+            PAV=`printf '%-7s' $TI`
+
+            echo -en "$PFI $PIP $PAV"
+            if [ "$PRERR" -eq "1" ]; then
+                >&2 echo -en "$PFI $PIP $PAV"
+            fi
+            if [ "$PAV" == "3000.33" ] ; then
+                echo -n "  error"
+                if [ "$PRERR" -eq "1" ]; then
+                    >&2 echo -n "  error"
+                fi
+            fi
+        else
+            echo -en "$F \t $IP \t $TI"
+            if [ "$PRERR" -eq "1" ]; then
+                >&2 echo -en "$F \t $IP \t $TI"
+            fi
+            if [ "$TI" == "3000.33" ] ; then
+                echo -en " \t error"
+                if [ "$PRERR" -eq "1" ]; then
+                    >&2 echo -en " \t error"
+                fi
+            fi
+        fi
+        echo
+        if [ "$PRERR" -eq "1" ]; then
+            >&2 echo
+        fi
+    done    
 }
 
 

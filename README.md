@@ -34,7 +34,7 @@ You kill your OpenVPN process with:  `sudo killall openvpn`
 That's it!
 
 
-I highly recommend adding [speedtest-cli](https://github.com/sivel/speedtest-cli) to your system so you can check out latency and actual VPN network throughput (Listing of the quickest VPNs for the choosen county will be added soon(tm)).
+I highly recommend adding [speedtest-cli](https://github.com/sivel/speedtest-cli) to your system so you can check out latency and actual VPN network throughput (Listing of the quickest VPNs for the choosen country will be added soon(tm)).
 
 
 ## TODO
