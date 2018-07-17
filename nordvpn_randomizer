@@ -135,6 +135,9 @@ function udpPinger() {
     done    
 }
 
+udpPinger
+exit 0
+
 
 # Parse all command line parameters, if any.
 while [[ $# -gt 0 ]]
