@@ -68,6 +68,7 @@ function udpPinger() {
     local DIR="/etc/openvpn/ovpn_udp"
     local PREFIX="nl"
     local PROTO="UDP"
+    local verbose="1"
 
     if [ "$QNPROTO" == "UDP" ]; then
         QPROTO="1194"
