@@ -20,8 +20,7 @@ scriptDir=$(dirname $(readlink -f $0))
 declare -A results
 declare -A fastServers
 myIndex=0
-showLowLoad=""
-showLowLatency=""
+debug=""
 rServer=""
 vpnExist=""
 vpnIP=""
@@ -91,14 +90,15 @@ function serverLoad() {
             map("\(.key)=\(.value|tostring)") |
             .[]' <<<"$nordServers")
 
-    if [ $showLowLoad ]; then
+    if [ $debug ]; then
+        echo
+        echo "Filtered: server load + server latency"
         echo
         for key in "${!results[@]}"
         do
             echo "$key ${results[$key]}%"
         done | awk '{print $NF,$0}' | sort -nr | cut -f2- -d' ' | column -t
         echo
-        exit 0
     fi
 
     for key in "${!results[@]}"
@@ -115,14 +115,15 @@ function serverLoad() {
 #        ((myIndex++))
     done
 
-    if [ $showLowLatency ]; then
+    if [ $debug ]; then
+        echo
+        echo "Filtered: server load + server latency"
         echo
         for key in "${!fastServers[@]}"
         do
             echo "$key ${fastServers[$key]}ms"
         done | awk '{print $NF,$0}' | sort -n | cut -f2- -d' ' | column -t
         echo
-        exit 0
     fi
 
     size=${#fastServers[@]}
@@ -153,12 +154,9 @@ do
             shift
             mySelect="$1"
         ;;
-        -x)
-            showLowLoad="true"
+        -x|--debug)
+            debug="true"
         ;;
-        -y)
-            showLowLatency="true"
-        ;;        
         -k|--kill)
             killOpenvpn
         ;;
@@ -173,6 +171,8 @@ do
             echo "No parameters             = menu mode"
             echo
             echo "-a|--add <country-code>   = add a randomized VPN"
+            echo
+            echo "-x|--debug)               = list internal lists"
             echo
             echo "-k|--kill                 = kill all OpenVPN processes"
             echo
@@ -195,6 +195,9 @@ do
     shift
 done
 
+if [ $debug ];then
+    exit 0
+fi
 
 cd /etc/openvpn/ovpn_udp
 
