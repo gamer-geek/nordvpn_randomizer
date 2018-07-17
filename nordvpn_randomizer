@@ -17,6 +17,8 @@
 # if run in cron or symlinked.
 scriptDir=$(dirname $(readlink -f $0))
 
+declare -A results
+declare -a fastServers
 rServer=""
 vpnExist=""
 vpnIP=""
@@ -26,6 +28,10 @@ myItem=""
 item=""
 cli=""
 cwd=$(pwd)
+CAPACITY=70         # Servers with 70% capacity left
+THRESHOLD=30        # Latency threshold 30ms
+myIndex=0
+
 
 # Unset this string to disable logging
 LOGFILE="$scriptDir/nordvpn_randomizer.log"
@@ -36,6 +42,7 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
+type jq >/dev/null 2>&1 || { 2>&1 echo "Missing dependency: This script requires jq 1.5"; exit 1; }
 
 function checkOpenvpn() {
     for pid in $(pidof -x openvpn)
@@ -64,81 +71,54 @@ function killOpenvpn() {
     return
 }
 
-function udpPinger() {
-    local DIR="/etc/openvpn/ovpn_udp"
-    local PREFIX="nl"
-    local PROTO="UDP"
-    local verbose="1"
-    local PRERR=0
+function serverLoad() {
+    local pingOut=""
+    local size=0
 
-    if [ "$QNPROTO" == "UDP" ]; then
-        QPROTO="1194"
-    else
-        QPROTO="443"
-    fi
-
-    if [ ! $verbose ]; then
-        echo "Protocol: $QPROTO"
-    fi
-    if [ "$verbose" ] ; then
-        echo "ovpn file                                          protocol           average  timeout"
-    fi
-
-
-    for F in "$DIR"/"$PREFIX"*.ovpn
-    do
-        [ ! -e $F ] && echo -e 'Please give a valid path to where you downloaded ovpn files.\n(Try "-w" to automatically download them first or "-h" for help.)' && exit 1
-        LIN=`grep "remote " $F`
-#        PROTO=`echo $LIN | cut -d' ' -f3`
-#        if [ "$PROTO" != "$QPROTO" ]; then
-#            continue
-#        fi
-        IP=`echo $LIN | cut -d' ' -f2`
-        DL=`ping -c3 -q $IP | tail -n2`
-
-        if grep "100% packet loss" <(echo $DL) > /dev/null ; then
-            TI="3000.33"
-        else
-            TI=`echo $DL | cut -d'/' -f5`
-        fi
-
-        if [ "$verbose" -gt "0" ]; then
-            # formatted output
-            PFI=`printf '%-50s' "$F"`
-            PIP=`printf '%-18s' "$IP"`
-            PAV=`printf '%-7s' $TI`
-
-            echo -en "$PFI $PIP $PAV"
-            if [ "$PRERR" -eq "1" ]; then
-                >&2 echo -en "$PFI $PIP $PAV"
-            fi
-            if [ "$PAV" == "3000.33" ] ; then
-                echo -n "  error"
-                if [ "$PRERR" -eq "1" ]; then
-                    >&2 echo -n "  error"
-                fi
-            fi
-        else
-            echo -en "$F \t $IP \t $TI"
-            if [ "$PRERR" -eq "1" ]; then
-                >&2 echo -en "$F \t $IP \t $TI"
-            fi
-            if [ "$TI" == "3000.33" ] ; then
-                echo -en " \t error"
-                if [ "$PRERR" -eq "1" ]; then
-                    >&2 echo -en " \t error"
-                fi
-            fi
-        fi
+    if [ ! $cli ]; then
         echo
-        if [ "$PRERR" -eq "1" ]; then
-            >&2 echo
-        fi
-    done    
-}
+        echo "Picking fastest random server"
+        echo
+        echo "Standby..."
+        echo
+    fi
 
-udpPinger
-exit 0
+    nordServers=$(curl --silent https://nordvpn.com/api/server/stats)
+
+    while IFS="=" read -r key value
+    do
+        results[$key]="$value"
+    done < <(jq --compact-output -r --arg location $mySelect --arg capacity $CAPACITY \
+            '[. |
+            to_entries[] |
+            {key: .key, value: .value.percent} |
+            select(.value > ($capacity|tonumber)) |
+            select(.key|contains($location))] |
+            sort_by(-.value) |
+            from_entries |
+            to_entries |
+            map("\(.key)=\(.value|tostring)") |
+            .[]' <<<"$nordServers")
+
+    for key in "${!results[@]}"
+    do
+        pingOut=$(ping -w 2 -c 1 -q $key | tail -n2 | awk -F '/' 'END {print $5}')
+
+        if grep "100% packet loss" <(echo $pingOut) > /dev/null ; then
+            echo "Error"
+        elif [[ "$pingOut" < "$THRESHOLD" ]]; then
+            fastServers[$myIndex]=$key
+#            echo "$pingOut / $key"
+        fi
+        ((myIndex++))
+    done
+
+    size=${#fastServers[@]}
+    myIndex=$(($RANDOM % $size))
+#    echo ${fastServers[$myIndex]}
+    rServer="${fastServers[$myIndex]}.udp.ovpn"
+#    echo "$rServer"
+}
 
 
 # Parse all command line parameters, if any.
@@ -148,12 +128,16 @@ do
     case "$key" in
         -a|--add)
             shift
-            mySelect="$1"
             cli="true"
+            mySelect="$1"
         ;;
         -k|--kill)
             cli="true"
             killOpenvpn
+        ;;
+        -a|--fastest)
+            cli="true"
+            serverLoad
         ;;
         -h|--help)
             cli="true"
@@ -164,7 +148,11 @@ do
             echo
             echo "-k|--kill                 = kill all OpenVPN processes"
             echo
+            echo "-f|--fastest              = find the fastest"
+            echo
             echo "-h|--help                 = this help"
+            echo
+            echo "Valid country-codes are: ${VPNCOUNTRIES[*]}"
             echo
             exit 0
         ;;        
@@ -218,8 +206,12 @@ fi
 # Ok, we now have a valid country-code. Time to start the OpenVPN server.
 cd /etc/openvpn/ovpn_udp
 
-# Pick a random file we need
-rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo)
+
+if [ ! $rServer ]; then
+    # Pick a random file we need
+    rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo)
+    echo "Picking a file"
+fi
 
 if [ ! $cli ]; then
     echo
