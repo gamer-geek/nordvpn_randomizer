@@ -124,6 +124,10 @@ function serverLoad() {
     size=${#fastServers[@]}
     myIndex=$(($RANDOM % $size))
 
+    echo "$size // $myIndex"
+    exit
+
+
     if [ ! ${fastServers[$myIndex]} ]; then
         echo "[$(who am i | awk -F' ' '{print $1}')][$(date)] No server matching your critera could be found" >> $LOGFILE
         if [ $logview ]; then
@@ -134,7 +138,7 @@ function serverLoad() {
         rServer="${fastServers[$myIndex]}.udp.ovpn"
     fi
 
-    echo "$rServer"
+#    echo "$rServer"
 
     if [ $debug ]; then
         echo
