@@ -72,6 +72,7 @@ function serverLoad() {
     local size=0
     local capacity=0
     local location=""
+    local temprServer=""
 
     nordServers=$(curl --silent https://nordvpn.com/api/server/stats)
 
@@ -128,7 +129,7 @@ function serverLoad() {
     for key in "${!fastServers[@]}"
     do
         if [ "$i" = "$myIndex" ]; then
-            rServer="$key"
+            temprServer="$key"
         fi
     ((i++))
     done
@@ -145,7 +146,7 @@ function serverLoad() {
         fi
         exit 1
     else
-        rServer="$rServer.udp.ovpn"
+        rServer="$temprServer.udp.ovpn"
     fi
 
 #    echo "$rServer"
