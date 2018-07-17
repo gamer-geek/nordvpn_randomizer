@@ -206,9 +206,6 @@ do
     shift
 done
 
-if [ $debug ];then
-    exit 0
-fi
 
 cd /etc/openvpn/ovpn_udp
 
@@ -223,6 +220,10 @@ fi
 if [ ! $rServer ]; then
     # --fastest is not set so we pick a file the oldfashioned way.
     rServer=$(shuf -ezn 1 $mySelect*udp* | xargs -0 -n1 echo)
+fi
+
+if [ $debug ];then
+    exit 0
 fi
 
 # Find the string 'auth-user-pass' in the choosen file and add
