@@ -19,6 +19,9 @@ scriptDir=$(dirname $(readlink -f $0))
 
 declare -A results
 declare -a fastServers
+myIndex=0
+showLowLoad=""
+showLowLatency=""
 rServer=""
 vpnExist=""
 vpnIP=""
@@ -27,7 +30,7 @@ mySelect=""
 cwd=$(pwd)
 CAPACITY=70         # Servers with 70% capacity left
 THRESHOLD=30        # Latency threshold: Below 30ms
-myIndex=0
+
 
 
 # Unset this string to disable logging
@@ -88,6 +91,13 @@ function serverLoad() {
             map("\(.key)=\(.value|tostring)") |
             .[]' <<<"$nordServers")
 
+    if [ $showLowLoad ]; then
+        echo
+        echo ${results[@]}
+        echo
+        exit 0
+    fi
+
     for key in "${!results[@]}"
     do
         pingOut=$(ping -w 2 -c 1 -q $key | tail -n2 | awk -F '/' 'END {print $5}')
@@ -98,6 +108,13 @@ function serverLoad() {
         fi
         ((myIndex++))
     done
+
+    if [ $showLowLatency ]; then
+        echo
+        echo ${fastServers[@]}
+        echo
+        exit 0
+    fi
 
     size=${#fastServers[@]}
     myIndex=$(($RANDOM % $size))
@@ -127,6 +144,12 @@ do
             shift
             mySelect="$1"
         ;;
+        -x)
+            showLowLoad="true"
+        ;;
+        -y)
+            showLowLatency="true"
+        ;;        
         -k|--kill)
             killOpenvpn
         ;;
@@ -146,7 +169,7 @@ do
             echo
             echo "-f|--fastest              = find the fastest"
             echo
-            echo "-l|--log              = show the log after connection"
+            echo "-l|--log                  = show the log after connection"
             echo
             echo "-h|--help                 = this help"
             echo
