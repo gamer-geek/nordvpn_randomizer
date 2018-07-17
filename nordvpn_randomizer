@@ -93,7 +93,11 @@ function serverLoad() {
 
     if [ $showLowLoad ]; then
         echo
-        echo ${results[@]}
+        for i in "${!results[@]}"
+        do
+            echo "key  : $i"
+            echo "value: ${results[$i]}"
+        done
         echo
         exit 0
     fi
