@@ -93,11 +93,16 @@ function serverLoad() {
 
     if [ $showLowLoad ]; then
         echo
-        for i in "${!results[@]}"
+        for key in "${!results[@]}"
         do
-            echo "key  : $i"
-            echo "value: ${results[$i]}"
-        done
+            echo -e "$(tput setaf 6 && tput bold)$key $(tput sgr0) ${results[$key]}%"
+        done | awk '{print $NF,$0}' | sort -nr | cut -f2- -d' ' | column -t
+
+#        for i in "${!results[@]}"
+#        do
+#            echo "key  : $i"
+#            echo "value: ${results[$i]}"
+#        done
         echo
         exit 0
     fi
