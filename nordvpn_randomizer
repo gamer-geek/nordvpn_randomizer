@@ -108,11 +108,6 @@ function serverLoad() {
         if [[ "$pingOut" < "$THRESHOLD" ]]; then
             fastServers[$key]=$pingOut
         fi
-
-#        if [[ "$pingOut" < "$THRESHOLD" ]]; then
-#            fastServers[$myIndex]=$key
-#        fi
-#        ((myIndex++))
     done
 
     if [ $debug ]; then
@@ -140,6 +135,14 @@ function serverLoad() {
     fi
 
 #    echo "$rServer"
+
+    if [ $debug ]; then
+        echo
+        echo "Randomly selected server"
+        echo
+        echo "${fastServers[$myIndex]}"
+        echo
+    fi
 
     return
 }
