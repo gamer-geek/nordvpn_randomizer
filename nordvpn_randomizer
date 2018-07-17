@@ -69,6 +69,7 @@ function udpPinger() {
     local PREFIX="nl"
     local PROTO="UDP"
     local verbose="1"
+    local PRERR=0
 
     if [ "$QNPROTO" == "UDP" ]; then
         QPROTO="1194"
