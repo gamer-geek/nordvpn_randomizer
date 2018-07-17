@@ -112,7 +112,7 @@ function serverLoad() {
         rServer="${fastServers[$myIndex]}.udp.ovpn"
     fi
 
-    echo "$rServer"
+#    echo "$rServer"
 
     return
 }
